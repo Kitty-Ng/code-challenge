@@ -39,10 +39,10 @@ class AllDevicesList extends React.Component {
     for (const checkbox of this.state.selectedCheckboxes) {
       console.log(checkbox, 'is selected.');
     }
+    // show alert with device name and path
   };
 
   checkStatus = device => {
-    console.log(this.state.selectedCheckboxes);
     if (this.state.selectedCheckboxes.includes(device)) {
       return true;
     } else {
@@ -74,6 +74,7 @@ class AllDevicesList extends React.Component {
 
   render() {
     let allDevices = this.props.store.allDevices.mockData;
+    let selectedDevices = this.state.selectedCheckboxes;
     return (
       <div>
         {!allDevices ? (
@@ -81,7 +82,17 @@ class AllDevicesList extends React.Component {
         ) : (
           <div>
             <form onSubmit={this.handleFormSubmit}>
-              <button className="btn btn-default" type="submit">
+              {selectedDevices.length ? (
+                <h1>Selected Count {selectedDevices.length}</h1>
+              ) : (
+                <h1>None Selected</h1>
+              )}
+
+              <button
+                className="btn btn-default"
+                type="submit"
+                disabled={!selectedDevices.length}
+              >
                 <FontAwesomeIcon icon="download" /> Download
               </button>
               {this.createCheckboxes()}
