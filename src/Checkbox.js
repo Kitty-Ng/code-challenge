@@ -1,20 +1,31 @@
 import React, { Component } from 'react';
+import Device from './Device';
 
-class Checkbox extends Component {
-  render() {
-    const { label, isChecked, onChange, disabled } = this.props;
-    return (
-      <label>
-        <input
-          type="checkbox"
-          value={label}
-          onChange={onChange}
-          checked={isChecked}
-          disabled={disabled}
-        />
-      </label>
-    );
-  }
-}
+export const CheckBox = props => {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'row'
+      }}
+    >
+      <input
+        key={props.id}
+        onChange={props.handleCheckChildElement}
+        type="checkbox"
+        checked={props.isChecked}
+        value={props.name}
+        disabled={props.disabled}
+        id={props.id}
+      />
+      <Device
+        name={props.name}
+        device={props.device}
+        path={props.path}
+        status={props.status}
+      />
+    </div>
+  );
+};
 
-export default Checkbox;
+export default CheckBox;

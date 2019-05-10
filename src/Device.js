@@ -9,11 +9,9 @@ export default function Device({ id, name, device, path, status }) {
         className="device-container"
         style={{
           display: 'flex',
-          flexDirection: 'row',
-          justifyContent: 'space-between'
+          flexDirection: 'row'
         }}
       >
-        <p>{id}</p>
         <p>{name}</p>
         <p>{device}</p>
         <p>{path}</p>
