@@ -4,26 +4,59 @@ import apiService from './services/api.js';
 import getAllDevices from './actionCreators/getAllDevices';
 import Device from './Device';
 import Checkbox from './Checkbox';
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faDownload } from '@fortawesome/free-solid-svg-icons';
+
+library.add(faDownload);
 
 class AllDevicesList extends React.Component {
+  state = {
+    selectedCheckboxes: []
+  };
+
   componentDidMount() {
     this.props.getAllDevices();
-    this.selectedCheckboxes = new Set();
   }
 
   toggleCheckbox = device => {
-    if (this.selectedCheckboxes.has(device)) {
-      this.selectedCheckboxes.delete(device);
+    let selectedDevices = [...this.state.selectedCheckboxes];
+
+    if (selectedDevices.includes(device)) {
+      selectedDevices = selectedDevices.filter(x => x.id !== device.id);
     } else {
-      this.selectedCheckboxes.add(device);
+      selectedDevices.push(device);
+    }
+
+    this.setState({
+      selectedCheckboxes: selectedDevices
+    });
+  };
+
+  handleFormSubmit = formSubmitEvent => {
+    formSubmitEvent.preventDefault();
+
+    for (const checkbox of this.state.selectedCheckboxes) {
+      console.log(checkbox, 'is selected.');
+    }
+  };
+
+  checkStatus = device => {
+    console.log(this.state.selectedCheckboxes);
+    if (this.state.selectedCheckboxes.includes(device)) {
+      return true;
+    } else {
+      return false;
     }
   };
 
   createCheckbox = device => (
     <div key={device.id}>
+      <h1>{this.state.selectedCheckboxes.includes(device)}</h1>
       <Checkbox
         label={device.name}
-        handleCheckboxChange={this.toggleCheckbox}
+        isChecked={this.checkStatus(device)}
+        onChange={() => this.toggleCheckbox(device)}
         disabled={device.status !== 'available'}
       />
       <Device
@@ -39,14 +72,6 @@ class AllDevicesList extends React.Component {
   createCheckboxes = () =>
     this.props.store.allDevices.mockData.data.map(this.createCheckbox);
 
-  handleFormSubmit = formSubmitEvent => {
-    formSubmitEvent.preventDefault();
-
-    for (const checkbox of this.selectedCheckboxes) {
-      console.log(checkbox, 'is selected.');
-    }
-  };
-
   render() {
     let allDevices = this.props.store.allDevices.mockData;
     return (
@@ -56,10 +81,10 @@ class AllDevicesList extends React.Component {
         ) : (
           <div>
             <form onSubmit={this.handleFormSubmit}>
-              {this.createCheckboxes()}
               <button className="btn btn-default" type="submit">
-                Save
+                <FontAwesomeIcon icon="download" /> Download
               </button>
+              {this.createCheckboxes()}
             </form>
           </div>
         )}
