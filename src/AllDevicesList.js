@@ -13,7 +13,8 @@ class AllDevicesList extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      selectedCheckboxes: []
+      selectedDevices: [],
+      isSelectAllChecked: false
     };
   }
 
@@ -24,57 +25,46 @@ class AllDevicesList extends React.Component {
   handleFormSubmit = formSubmitEvent => {
     formSubmitEvent.preventDefault();
 
-    for (const checkbox of this.state.selectedCheckboxes) {
+    for (const checkbox of this.state.selectedDevices) {
       console.log(checkbox, 'is selected.');
     }
     // show alert with device name and path
   };
 
   handleAllChecked = event => {
-    let allAvailableDevices = this.props.store.allDevices.mockData.data.filter(
-      device => device.status === 'available'
-    );
+    let selectedDevices = [];
+    let isSelectAllChecked = event.currentTarget.checked;
 
-    allAvailableDevices.forEach(device => {
-      device.isChecked = event.target.checked;
-    });
-
-    if (!event.target.checked) {
-      allAvailableDevices = [];
+    if (isSelectAllChecked) {
+      selectedDevices = [...this.props.allAvailableDevices];
     }
-    console.log('allAvailableDevices', allAvailableDevices);
 
-    this.setState({ selectedCheckboxes: allAvailableDevices });
+    this.setState({ selectedDevices, isSelectAllChecked });
   };
 
   handleCheckChildElement = event => {
-    let selectedCheckboxes = [...this.state.selectedCheckboxes];
-
-    let allAvailableDevices = this.props.store.allDevices.mockData.data.filter(
-      device => device.status === 'available'
+    let selectedDevices = [...this.state.selectedDevices];
+    let currDevice = this.props.allAvailableDevices.find(
+      x => x.id === event.target.id
     );
 
-    let currDevice = allAvailableDevices.find(x => x.id === event.target.id);
-
-    if (selectedCheckboxes.find(x => x.id === currDevice.id)) {
-      selectedCheckboxes = selectedCheckboxes.filter(
-        x => x.id !== event.target.id
+    if (selectedDevices.find(x => x.id === currDevice.id)) {
+      selectedDevices = selectedDevices.filter(
+        x => x.id !== event.currentTarget.id
       );
     } else {
-      selectedCheckboxes.push(currDevice);
+      selectedDevices.push(currDevice);
     }
-
-    selectedCheckboxes.forEach(device => {
-      device.isChecked = event.target.checked;
+    this.setState({
+      selectedDevices,
+      isSelectAllChecked:
+        this.props.allAvailableDevices.length === selectedDevices.length
     });
-
-    console.log('selectedCheckboxes', selectedCheckboxes);
-    this.setState({ selectedCheckboxes: selectedCheckboxes });
   };
 
   render() {
-    let allDevices = this.props.store.allDevices.mockData;
-    let selectedDevices = this.state.selectedCheckboxes;
+    let allDevices = this.props.allDevices;
+    let selectedDevices = this.state.selectedDevices;
     return (
       <div>
         {!allDevices ? (
@@ -85,6 +75,7 @@ class AllDevicesList extends React.Component {
               type="checkbox"
               onChange={this.handleAllChecked}
               value="checkedall"
+              checked={this.state.isSelectAllChecked}
             />{' '}
             {selectedDevices.length ? (
               <span>Selected {selectedDevices.length}</span>
@@ -100,13 +91,18 @@ class AllDevicesList extends React.Component {
               <FontAwesomeIcon icon="download" /> Download Selected
             </button>
             <div>
-              {this.props.store.allDevices.mockData.data.map(device => {
+              {this.props.allDevices.map(device => {
                 return (
                   <CheckBox
+                    {...device}
                     key={device.id}
+                    isChecked={
+                      this.state.selectedDevices.find(
+                        x => x.id === device.id
+                      ) || false
+                    }
                     disabled={device.status !== 'available'}
                     handleCheckChildElement={this.handleCheckChildElement}
-                    {...device}
                   />
                 );
               })}
@@ -119,7 +115,10 @@ class AllDevicesList extends React.Component {
 }
 
 const mapStateToProps = store => ({
-  store
+  allDevices: store.allDevices,
+  allAvailableDevices: store.allDevices.filter(
+    device => device.status === 'available'
+  )
 });
 
 const mapDispatchToProps = {
