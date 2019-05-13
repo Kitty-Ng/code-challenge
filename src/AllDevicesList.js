@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import apiService from './services/api.js';
 import getAllDevices from './actionCreators/getAllDevices';
-import CheckBox from './CheckBox';
+import CheckBoxRow from './CheckBoxRow';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDownload } from '@fortawesome/free-solid-svg-icons';
@@ -25,10 +25,16 @@ class AllDevicesList extends React.Component {
   handleFormSubmit = formSubmitEvent => {
     formSubmitEvent.preventDefault();
 
-    for (const checkbox of this.state.selectedDevices) {
-      console.log(checkbox, 'is selected.');
-    }
-    // show alert with device name and path
+    let formattedString = '';
+
+    this.state.selectedDevices.forEach(checkbox => {
+      formattedString =
+        formattedString + checkbox.device + ': ' + checkbox.path + '\t';
+    });
+
+    window.alert(
+      'Are you sure you want to download these files?' + '\n' + formattedString
+    );
   };
 
   handleAllChecked = event => {
@@ -62,51 +68,70 @@ class AllDevicesList extends React.Component {
     });
   };
 
+  toggleCheck = device => {
+    if (this.state.selectedDevices.find(x => x.id === device.id)) {
+      return true;
+    } else return false;
+  };
+
   render() {
-    let allDevices = this.props.allDevices;
     let selectedDevices = this.state.selectedDevices;
     return (
       <div>
-        {!allDevices ? (
+        {!this.props.allDevices ? (
           <h1>Fetching API data...</h1>
         ) : (
-          <div>
-            <input
-              type="checkbox"
-              onChange={this.handleAllChecked}
-              value="checkedall"
-              checked={this.state.isSelectAllChecked}
-            />{' '}
-            {selectedDevices.length ? (
-              <span>Selected {selectedDevices.length}</span>
-            ) : (
-              <span>None Selected</span>
-            )}
-            <button
-              className="btn btn-default"
-              type="submit"
-              disabled={!selectedDevices.length}
-              onClick={this.handleFormSubmit}
-            >
-              <FontAwesomeIcon icon="download" /> Download Selected
-            </button>
-            <div>
-              {this.props.allDevices.map(device => {
-                return (
-                  <CheckBox
-                    {...device}
-                    key={device.id}
-                    isChecked={
-                      this.state.selectedDevices.find(
-                        x => x.id === device.id
-                      ) || false
-                    }
-                    disabled={device.status !== 'available'}
-                    handleCheckChildElement={this.handleCheckChildElement}
-                  />
-                );
-              })}
-            </div>
+          <div className={'responsive-table'}>
+            <table>
+              <tbody>
+                <tr>
+                  <td>
+                    <input
+                      type="checkbox"
+                      onChange={this.handleAllChecked}
+                      value="checkedall"
+                      checked={this.state.isSelectAllChecked}
+                    />
+                  </td>
+                  <td>
+                    {selectedDevices.length ? (
+                      <span>Selected {selectedDevices.length}</span>
+                    ) : (
+                      <span>None Selected</span>
+                    )}
+                  </td>
+                  <td>
+                    <button
+                      className="btn btn-default"
+                      type="submit"
+                      disabled={!selectedDevices.length}
+                      onClick={this.handleFormSubmit}
+                    >
+                      <FontAwesomeIcon icon="download" /> Download Selected
+                    </button>
+                  </td>
+                </tr>
+                <tr className={'left-align'}>
+                  <th />
+                  <th>Name</th>
+                  <th>Device</th>
+                  <th>Path</th>
+                  <th aria-hidden="true" />
+                  <th>Status</th>
+                </tr>
+                {this.props.allDevices.map(device => {
+                  return (
+                    <CheckBoxRow
+                      {...device}
+                      key={device.id}
+                      isChecked={this.toggleCheck(device)}
+                      disabled={device.status !== 'available'}
+                      handleCheckChildElement={this.handleCheckChildElement}
+                    />
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         )}
       </div>

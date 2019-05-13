@@ -1,0 +1,41 @@
+.responsive-table {
+  overflow-x: auto;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.left-align {
+  text-align: left;
+}
+
+td {
+  border: none;
+}
+
+input[type='checkbox'] {
+  cursor: pointer;
+}
+
+.isChecked-true {
+  background-color: #cccccc;
+}
+
+.wrapper:hover {
+  background-color: #efefef;
+  cursor: pointer;
+}
+
+.capitalize {
+  text-transform: capitalize;
+}
+
+.available-icon {
+  display: inline-block;
+  height: 10px;
+  width: 10px;
+  background-color: lime;
+  border-radius: 50%;
+}
